@@ -111,6 +111,11 @@ fi
 if [ -e addons.make ]; then
     echo "[Info] Reading addons.make"
     for addon in $(cat addons.make); do
+        # if addon is empty, skip
+        if [ -z $addon ]; then
+            continue
+        fi
+
         addon_path=$addon
         if [[ ! $addon == addons/* ]]; then
             addon_path=$OF_ROOT/addons/$addon
