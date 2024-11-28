@@ -22,5 +22,5 @@ For windows users, please use git-bash.
 $ git clone https://github.com/funatsufumiya/of-vscode-project-generator
 $ cd of-vscode-project-generator
 $ chmod +x of-vscode-project-generator.sh
-$ mv of-vscode-project-generator.sh /usr/local/bin/of-vscode-project-generator
+$ cp of-vscode-project-generator.sh /usr/local/bin/of-vscode-project-generator
 ```
