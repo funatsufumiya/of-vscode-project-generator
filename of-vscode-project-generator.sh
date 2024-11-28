@@ -159,6 +159,12 @@ for i in $(cat $path_list_file); do
     fi
 
     echo "$sp\"$r\"," >> $list
+
+    # WORKAROUND: if ofxOsc/libs/oscpack/src is hit, also oscpack/src/**
+    if [[ $r == *oscpack/src ]]; then
+        echo "$sp\"$r/**\"," >> $list
+    fi
+
 done # end for path_list_file
 
 # consider x64 or arm64
