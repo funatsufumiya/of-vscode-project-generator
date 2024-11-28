@@ -23,4 +23,6 @@ $ git clone https://github.com/funatsufumiya/of-vscode-project-generator
 $ cd of-vscode-project-generator
 $ chmod +x of-vscode-project-generator.sh
 $ cp of-vscode-project-generator.sh /usr/local/bin/of-vscode-project-generator
+
+# NOTE: For windows user, on git-bash, /usr/local/bin/ may not exist. Please copy to /usr/bin/ or any directory in PATH.
 ```
