@@ -111,8 +111,11 @@ fi
 if [ -e addons.make ]; then
     echo "[Info] Reading addons.make"
     for addon in $(cat addons.make); do
-        # if addon is empty or only newline, skip
-        if [ -z "$(echo $addon | tr -d '\n')" ]; then
+        # remove new line or carriage return
+        addon=$(echo $addon | tr -d '\r\n')
+
+        # if addon is empty, skip
+        if [ -z $addon ]; then
             continue
         fi
 
