@@ -10,15 +10,13 @@
 
 echo
 echo "======================================"
-echo "   of-vscode-project-generator"
+echo "   of-vscode-project-generator v0.0.3"
 echo "======================================"
 echo
 echo "Usage:"
 echo "  $ of-vscode-project-generator /path/to/apps/myApps/xxx"
 echo "    or"
 echo "  $ cd /path/to/apps/myApps/xxx && of-vscode-project-generator"
-echo
-echo "------"
 echo
 
 realpath ()
@@ -34,6 +32,18 @@ realpath ()
     dir=$(cd "$dir" && /bin/pwd);
     echo "$dir$base"
 }
+
+# if -h or -v is given, show help or version
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    exit 0
+fi
+
+if [ "$1" = "-v" ] || [ "$1" = "--version" ]; then
+    exit 0
+fi
+
+echo "------"
+echo
 
 if [ "$(uname)" == 'Darwin' ]; then
   OS='Mac'
