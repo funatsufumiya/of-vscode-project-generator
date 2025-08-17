@@ -53,6 +53,34 @@ parse_addon_excludes() {
     fi
 }
 
+is_excluded_dir() {
+    local dir_abs="$1"
+    shift
+    local excludes=("$@")
+    for ex in "${excludes[@]}"; do
+        # if [ "$is_debug" == '1' ]; then
+        #     echo "[Debug] $dir_abs (vs exclude $ex)"
+        # fi
+        if [[ "$ex" == *'*' ]]; then
+            ex_prefix="${ex%\*}"
+            if [[ "$dir_abs" == "$ex_prefix"* ]]; then
+                if [ "$is_debug" == '1' ]; then
+                    echo "[Debug] reject $dir_abs (exclude pattern $ex)"
+                fi
+                return 0
+            fi
+        else
+            if [[ "$dir_abs" == "$ex" ]]; then
+                if [ "$is_debug" == '1' ]; then
+                    echo "[Debug] reject $dir_abs (exclude pattern $ex)"
+                fi
+                return 0
+            fi
+        fi
+    done
+    return 1
+}
+
 # if -h or -v is given, show help or version
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     exit 0
@@ -187,16 +215,10 @@ if [ -e addons.make ]; then
         if [ -d $addon_path/src ]; then
             for dir in $(find $addon_path/src -type d); do
                 dir_abs=$(realpath "$dir")
-                skip=0
-                for ex in "${excludes[@]}"; do
-                    if [[ "$dir_abs" == $ex ]]; then
-                        skip=1
-                        break
-                    fi
-                done
-                if [ $skip -eq 0 ]; then
-                    echo "$dir" >> $path_list_file
+                if is_excluded_dir "$dir_abs" "${excludes[@]}"; then
+                    continue
                 fi
+                echo "$dir" >> $path_list_file
             done
         fi
 
@@ -218,38 +240,22 @@ if [ -e addons.make ]; then
                 if [ -d $lib_path/src ]; then
                     for dir in $(find $lib_path/src -type d); do
                         dir_abs=$(realpath "$dir")
-                        skip=0
-                        for ex in "${excludes[@]}"; do
-                            if [ "$is_debug" == '1' ]; then
-                                echo "[Debug] $dir_abs $ex"
-                            fi
-
-                            if [[ "$dir_abs" == $ex ]]; then
-                                skip=1
-                                break
-                            fi
-                        done
-                        if [ $skip -eq 0 ]; then
-                            echo "$dir" >> $path_list_file
+                        if is_excluded_dir "$dir_abs" "${excludes[@]}"; then
+                            continue
                         fi
+                        echo "$dir" >> $path_list_file
                     done
                 fi
                 if [ -d $lib_path/include ]; then
                     for dir in $(find $lib_path/include -type d); do
                         dir_abs=$(realpath "$dir")
-                        skip=0
-                        for ex in "${excludes[@]}"; do
-                            if [[ "$dir_abs" == $ex ]]; then
-                                skip=1
-                                break
-                            fi
-                        done
-                        if [ $skip -eq 0 ]; then
-                            echo "$dir" >> $path_list_file
+                        if is_excluded_dir "$dir_abs" "${excludes[@]}"; then
+                            continue
                         fi
+                        echo "$dir" >> $path_list_file
                     done
                 fi
-            done # end for libs
+            done
         fi
     done # end for addons.make
 fi
