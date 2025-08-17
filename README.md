@@ -1,6 +1,6 @@
 # of-vscode-project-generator-sh
 
-**WARN**: DEPRECATED. This project is now moving to [Rust version](https://github.com/funatsufumiya/of-vscode-project-generator-rs).
+**WARN**: DEPRECATED. This project is now moved to [Rust version](https://github.com/funatsufumiya/of-vscode-project-generator-rs).
 
 [![Latest Version](https://img.shields.io/github/tag/funatsufumiya/of-vscode-project-generator.svg?style=flat-square)](https://github.com/funatsufumiya/of-vscode-project-generator/tags)
 
