@@ -1,5 +1,7 @@
 # of-vscode-project-generator
 
+[![Latest Version](https://img.shields.io/github/tag/funatsufumiya/of-vscode-project-generator.svg?style=flat-square)](https://github.com/funatsufumiya/of-vscode-project-generator/tags)
+
 openFrameworks project generator for Visual Studio Code.
 
 (only for syntax-highlighting and intellisense. Not for building or debug.)
