@@ -10,7 +10,7 @@
 
 echo
 echo "======================================"
-echo "   of-vscode-project-generator v0.0.5"
+echo "   of-vscode-project-generator v0.0.6"
 echo "======================================"
 echo
 echo "Usage:"
@@ -31,6 +31,26 @@ realpath ()
     fi;
     dir=$(cd "$dir" && /bin/pwd);
     echo "$dir$base"
+}
+
+parse_addon_excludes() {
+    local addon_path
+    addon_path=$(realpath "$1")
+    addon_path="$(echo "$addon_path" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    local exclude_file="$addon_path/addon_config.mk"
+    if [ -f "$exclude_file" ]; then
+        while IFS= read -r line; do
+            line="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            [[ -z "$line" || "$line" == \#* ]] && continue
+            if [[ "$line" == ADDON_SOURCES_EXCLUDE* ]] || [[ "$line" == ADDON_INCLUDES_EXCLUDE* ]]; then
+                pat=$(echo "$line" | sed -E 's/^[^=+]+(\+=|=)[[:space:]]*//')
+                pat="$(echo "$pat" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+                [[ -z "$pat" || "$pat" == "=" ]] && continue
+                pat="${pat//%/*}"
+                echo "$addon_path/$pat"
+            fi
+        done < "$exclude_file"
+    fi
 }
 
 # if -h or -v is given, show help or version
@@ -140,19 +160,82 @@ if [ -e addons.make ]; then
 
         echo "[Info] Cheking '$addon_path'"
 
+        # if [ -d $addon_path/src ]; then
+        #     echo "$addon_path/src" >> $path_list_file
+        #     echo "$addon_path/src/__" >> $path_list_file
+        # fi
+
+        excludes=()
+        while IFS= read -r line; do
+            excludes+=("$line")
+        done < <(parse_addon_excludes "$addon_path")
+
+        # echo "[Debug] excludes for $addon_path:"
+        # for ex in "${excludes[@]}"; do
+        #     echo "  $ex"
+        # done
+
         if [ -d $addon_path/src ]; then
-            echo "$addon_path/src" >> $path_list_file
-            echo "$addon_path/src/__" >> $path_list_file
+            for dir in $(find $addon_path/src -type d); do
+                dir_abs=$(realpath "$dir")
+                skip=0
+                for ex in "${excludes[@]}"; do
+                    if [[ "$dir_abs" == $ex ]]; then
+                        skip=1
+                        break
+                    fi
+                done
+                if [ $skip -eq 0 ]; then
+                    echo "$dir" >> $path_list_file
+                fi
+            done
         fi
+
+        # if [ -d $addon_path/libs ]; then
+        #     for lib in $(ls $addon_path/libs); do
+        #         lib_path=$addon_path/libs/$lib
+        #         if [ -d $lib_path/src ]; then
+        #             echo "$lib_path/src" >> $path_list_file
+        #         fi
+        #         if [ -d $lib_path/include ]; then
+        #             echo "$lib_path/include" >> $path_list_file
+        #         fi
+        #     done # end for libs
+        # fi
 
         if [ -d $addon_path/libs ]; then
             for lib in $(ls $addon_path/libs); do
                 lib_path=$addon_path/libs/$lib
                 if [ -d $lib_path/src ]; then
-                    echo "$lib_path/src" >> $path_list_file
+                    for dir in $(find $lib_path/src -type d); do
+                        dir_abs=$(realpath "$dir")
+                        skip=0
+                        for ex in "${excludes[@]}"; do
+                            # echo "[Debug] $dir_abs $ex"
+                            if [[ "$dir_abs" == $ex ]]; then
+                                skip=1
+                                break
+                            fi
+                        done
+                        if [ $skip -eq 0 ]; then
+                            echo "$dir" >> $path_list_file
+                        fi
+                    done
                 fi
                 if [ -d $lib_path/include ]; then
-                    echo "$lib_path/include" >> $path_list_file
+                    for dir in $(find $lib_path/include -type d); do
+                        dir_abs=$(realpath "$dir")
+                        skip=0
+                        for ex in "${excludes[@]}"; do
+                            if [[ "$dir_abs" == $ex ]]; then
+                                skip=1
+                                break
+                            fi
+                        done
+                        if [ $skip -eq 0 ]; then
+                            echo "$dir" >> $path_list_file
+                        fi
+                    done
                 fi
             done # end for libs
         fi
