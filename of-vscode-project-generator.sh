@@ -10,7 +10,7 @@
 
 echo
 echo "======================================"
-echo "   of-vscode-project-generator v0.0.3"
+echo "   of-vscode-project-generator v0.0.4"
 echo "======================================"
 echo
 echo "Usage:"
@@ -89,6 +89,14 @@ OF_ROOT=../../..
 
 path_list_file=$(mktemp)
 
+if [ "$OS" == 'Mac' ]; then
+    # FIXME: consider iOS project
+    MAC_SDK_ROOT="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+    if [ -d "$MAC_SDK_ROOT" ]; then
+        echo "$MAC_SDK_ROOT/usr/include" >> $path_list_file
+    fi
+fi
+
 echo "$OF_ROOT/libs/openFrameworks" >> $path_list_file
 echo "$OF_ROOT/libs/openFrameworks/__" >> $path_list_file
 #echo "$OF_ROOT/libs" >> $path_list_file
@@ -157,6 +165,7 @@ echo "[Info] Generating..."
 echo "$sp\"\${workspaceFolder}/**\"," >> $list
 echo "$sp\"\${workspaceFolder}/src\"," >> $list
 echo "$sp\"\${workspaceFolder}/src/**\"," >> $list
+
 for i in $(cat $path_list_file); do
 
     r=$(realpath $i)
