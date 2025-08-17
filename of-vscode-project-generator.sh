@@ -62,6 +62,13 @@ if [ "$1" = "-v" ] || [ "$1" = "--version" ]; then
     exit 0
 fi
 
+_path=$1
+is_debug=0
+if [ "$1" = "-d" ] || [ "$1" = "--debug" ]; then
+    is_debug=1
+    _path=$2
+fi
+
 echo "------"
 echo
 
@@ -76,7 +83,7 @@ elif [ "$COMSPEC" != "" ]; then
 fi
 
 echo "[Info] OS: $OS"
-proj=$(realpath $1)
+proj=$(realpath $_path)
 echo "[Info] project path: '$proj'"
 
 cd $proj
@@ -170,10 +177,12 @@ if [ -e addons.make ]; then
             excludes+=("$line")
         done < <(parse_addon_excludes "$addon_path")
 
-        # echo "[Debug] excludes for $addon_path:"
-        # for ex in "${excludes[@]}"; do
-        #     echo "  $ex"
-        # done
+        if [ "$is_debug" == '1' ]; then
+            echo "[Debug] excludes for $addon_path:"
+            for ex in "${excludes[@]}"; do
+                echo "  $ex"
+            done
+        fi
 
         if [ -d $addon_path/src ]; then
             for dir in $(find $addon_path/src -type d); do
@@ -211,7 +220,10 @@ if [ -e addons.make ]; then
                         dir_abs=$(realpath "$dir")
                         skip=0
                         for ex in "${excludes[@]}"; do
-                            # echo "[Debug] $dir_abs $ex"
+                            if [ "$is_debug" == '1' ]; then
+                                echo "[Debug] $dir_abs $ex"
+                            fi
+
                             if [[ "$dir_abs" == $ex ]]; then
                                 skip=1
                                 break
