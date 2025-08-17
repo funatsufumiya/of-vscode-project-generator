@@ -4,7 +4,7 @@
 
 openFrameworks project generator for Visual Studio Code.
 
-(only for syntax-highlighting, definition jumping and intellisense. Not for building or debug.)
+(only for static code analysis like syntax-highlighting, definition jumping or intellisense. Not for building or debug.)
 
 ## Usage
 
