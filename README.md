@@ -30,5 +30,5 @@ $ cp of-vscode-project-generator.sh /usr/local/bin/of-vscode-project-generator
 
 ## Limitations
 
-- This script won't load `addon_config.mk` and `config.make` files. If you need, please modify `.vscode/c_cpp_properties.json` manually after running this script.
+- This script loads some of `addon_config.mk` (and not load `config.make`). If you need more, please modify `.vscode/c_cpp_properties.json` manually after running this script.
 - This script exports environment-dependent settings. So I recommend NOT to include `.vscode` directory in your git repository.
