@@ -17,6 +17,8 @@ echo "Usage:"
 echo "  $ of-vscode-project-generator /path/to/apps/myApps/xxx"
 echo "    or"
 echo "  $ cd /path/to/apps/myApps/xxx && of-vscode-project-generator"
+echo 
+echo "NOTE: specify -i (or --ignore-excludes) if you feel slow"
 echo
 
 realpath ()
@@ -92,8 +94,12 @@ fi
 
 _path=$1
 is_debug=0
+is_ignore_excludes=0
 if [ "$1" = "-d" ] || [ "$1" = "--debug" ]; then
     is_debug=1
+    _path=$2
+elif [ "$1" = "-i" ] || [ "$1" = "--ignore-excludes" ]; then
+    is_ignore_excludes=1
     _path=$2
 fi
 
@@ -110,6 +116,7 @@ elif [ "$COMSPEC" != "" ]; then
   OS='Win32'
 fi
 
+echo "[Info] Ignoreing excludes by user (-i / --ignore-excludes) !!!"
 echo "[Info] OS: $OS"
 proj=$(realpath $_path)
 echo "[Info] project path: '$proj'"
@@ -201,9 +208,11 @@ if [ -e addons.make ]; then
         # fi
 
         excludes=()
-        while IFS= read -r line; do
-            excludes+=("$line")
-        done < <(parse_addon_excludes "$addon_path")
+        if [ "$is_ignore_excludes" == '0' ]; then
+            while IFS= read -r line; do
+                excludes+=("$line")
+            done < <(parse_addon_excludes "$addon_path")
+        fi
 
         if [ "$is_debug" == '1' ]; then
             echo "[Debug] excludes for $addon_path:"
