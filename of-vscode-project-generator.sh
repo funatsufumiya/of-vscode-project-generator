@@ -10,7 +10,7 @@
 
 echo
 echo "======================================"
-echo "   of-vscode-project-generator v0.0.4"
+echo "   of-vscode-project-generator v0.0.5"
 echo "======================================"
 echo
 echo "Usage:"
@@ -89,9 +89,10 @@ OF_ROOT=../../..
 
 path_list_file=$(mktemp)
 
+MAC_SDK_ROOT="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+
 if [ "$OS" == 'Mac' ]; then
     # FIXME: consider iOS project
-    MAC_SDK_ROOT="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
     if [ -d "$MAC_SDK_ROOT" ]; then
         echo "$MAC_SDK_ROOT/usr/include" >> $path_list_file
     fi
@@ -184,6 +185,35 @@ for i in $(cat $path_list_file); do
 
 done # end for path_list_file
 
+mac_framework_list_file=$(mktemp)
+if [ "$OS" == 'Mac' ]; then
+    # FIXME: consider iOS project
+    if [ -d "$MAC_SDK_ROOT" ]; then
+        echo "$MAC_SDK_ROOT/System/Library/Frameworks" >> $mac_framework_list_file
+    fi
+fi
+
+mac_framework_list=$(mktemp)
+line_count=$(wc -l < "$mac_framework_list_file")
+current=1
+for i in $(cat $mac_framework_list_file); do
+
+    r=$(realpath $i)
+    # r=$(echo $r | sed -e 's/^\/c/C:/')
+
+    if [[ $r == *__ ]]; then
+        r=$(echo $r | sed -e 's/__$/**/')
+    fi
+
+    if [ $current -lt $line_count ]; then
+        echo "$sp\"$r\"," >> $mac_framework_list
+    else
+        echo "$sp\"$r\"" >> $mac_framework_list
+    fi
+    current=$((current + 1))
+
+done # end for mac_framework_list_file
+
 # consider x64 or arm64
 # first check uname exists, if not, use x64 as default
 arch="x64"
@@ -204,6 +234,9 @@ f=$(cat << EOS
 $(cat $list)
             ],
             "defines": [],
+            "macFrameworkPath": [
+$(cat $mac_framework_list)
+            ],
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-$(echo $arch)"
